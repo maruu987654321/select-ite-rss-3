@@ -21,6 +21,7 @@ import sys
 import logging
 from flask import make_response
 from imgurpython.helpers.error import ImgurClientError
+from flask import Response
 
 
 app = Flask(__name__)
@@ -59,7 +60,7 @@ def get_rss_redbubble(key_words):
         url_product = []
         result2 = requests.get(j)
         c = result2.content
-        soup = BeautifulSoup(c, 'lxml')
+        soup = BeautifulSoup(c, "html.parser")
         mydivs = soup.findAll("a", {"class": "styles__link--2pzz4"})
         for i in mydivs:
             if contains_wanted(i['title'].lower(), key_words):
@@ -69,7 +70,7 @@ def get_rss_redbubble(key_words):
         for k in url_product:
             result2 = requests.get(k)
             c = result2.content
-            soup = BeautifulSoup(c, 'lxml')
+            soup = BeautifulSoup(c, "html.parser")
             image.append(soup.find("meta",  property="og:image")['content']) 
        
 
@@ -87,8 +88,12 @@ def get_rss_redbubble(key_words):
     file_metadata = {'name': 'rss_by_keywords_for_redbubble.rss'}
     media = MediaFileUpload('rss_by_keywords_for_redbubble.rss', mimetype='text/plain',resumable=True)
     fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()  
-    with open('rss_by_keywords_for_redbubble.rss', 'w') as fp:
-        feed.write(fp, 'utf-8')
+    o = feed.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_for_redbubble.rss', 'w') as fp:
+        fp.write(str(soup))
+   
         
         
 def rss_for_twitter(key_words, username):
@@ -121,8 +126,50 @@ def rss_for_twitter(key_words, username):
     file_metadata = {'name': 'rss_by_keywords_for_twitter.rss'}
     media = MediaFileUpload('rss_by_keywords_for_twitter.rss', mimetype='text/plain',resumable=True)
     fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()  
-    with open('rss_by_keywords_for_twitter.rss', 'w') as fp:
+    o = feed2.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_for_twitter.rss', 'w') as fp:
+        fp.write(str(soup))
+
+def rss_for_pinterest(key_words, username):
+    store = file.Storage('token.json')
+    creds = store.get()
+    if not creds or creds.invalid:
+        flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+        creds = tools.run_flow(flow, store)
+    service = build('drive', 'v3', http=creds.authorize(Http()))
+    feed2 = feedgenerator.Rss201rev2Feed(
+        title="Rss for pinterest",
+        link="https://pinterest.com/",
+        description="New in pinteret",
+        language="en")
+    url = 'https://www.pinterest.ru/{}/delicious.rss'.format(username)
+    feed = feedparser.parse(url)
+    for key in feed["entries"]: 
+            title = key['title']
+            link = key['link']
+            description = key['description']
+            if contains_wanted(title.lower(), key_words):
+                feed2.add_item(
+                title=title,
+                link=link,
+                description=description,
+                unique_id='idposte'
+                )        
+    with open('rss_by_keywords_for_pinterest.rss', 'w') as fp:
         feed2.write(fp, 'utf-8')
+    file_metadata = {'name': 'rss_by_keywords_for_pinterest.rss'}
+    media = MediaFileUpload('rss_by_keywords_for_pinterest.rss', mimetype='text/plain',resumable=True)
+    fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()  
+    o = feed2.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_for_pinterest.rss', 'w') as fp:
+        fp.write(str(soup))        
+        
+        
+        
 def get_rss_9gag(key_words):
     store = file.Storage('token.json')
     creds = store.get()
@@ -141,7 +188,7 @@ def get_rss_9gag(key_words):
         for key in feed["entries"]: 
             title = key['title']
             url = key['links'][0]['href']
-            soup = BeautifulSoup(key["summary"], 'lxml')
+            soup = BeautifulSoup(key["summary"], "html.parser")
             try:
                 image = soup.find('img')
                 url_image = image['src']
@@ -161,8 +208,13 @@ def get_rss_9gag(key_words):
     file_metadata = {'name': 'rss_by_keywords_for_9gag.rss'}
     media = MediaFileUpload('rss_by_keywords_for_9gag.rss', mimetype='text/plain',resumable=True)
     fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()  
-    with open('rss_by_keywords_for_9gag.rss', 'w') as fp:
-        feed2.write(fp, 'utf-8')
+    o = feed2.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_for_9gag.rss', 'w') as fp:
+        fp.write(str(soup))
+
+  
 
 def get_rss_amazon(key_words):
     store = file.Storage('token.json')
@@ -201,10 +253,13 @@ def get_rss_amazon(key_words):
         feed.write(fp, 'utf-8')
     file_metadata = {'name': 'rss_by_keywords_amazon.rss'}
     media = MediaFileUpload('rss_by_keywords_amazon.rss', mimetype='text/plain',resumable=True)
-    fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()        
-    with open('rss_by_keywords_amazon.rss', 'w') as fp:
-        feed.write(fp, 'utf-8')    
-        
+    fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    o = feed.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_amazon.rss', 'w') as fp:
+        fp.write(str(soup))
+    
 def get_rss_etsy(key_words):
     store = file.Storage('token.json')
     creds = store.get()
@@ -240,9 +295,12 @@ def get_rss_etsy(key_words):
         feed.write(fp, 'utf-8')  
     file_metadata = {'name': 'rss_by_keywords_etsy.rss'}
     media = MediaFileUpload('rss_by_keywords_etsy.rss', mimetype='text/plain',resumable=True)
-    fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()         
-    with open('rss_by_keywords_etsy.rss', 'w') as fp:
-        feed.write(fp, 'utf-8')   
+    fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute()  
+    o = feed.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_etsy.rss', 'w') as fp:
+        fp.write(str(soup)) 
         
 def get_rss_teepublic(key_words):
     store = file.Storage('token.json')
@@ -308,8 +366,12 @@ def get_rss_teepublic(key_words):
     file_metadata = {'name': 'rss_by_keywords_teepublic.rss'}
     media = MediaFileUpload('rss_by_keywords_teepublic.rss', mimetype='text/plain',resumable=True)
     fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute() 
-    with open('rss_by_keywords_teepublic.rss', 'w') as fp:
-        feed2.write(fp, 'utf-8')
+    o = feed2.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_teepublic.rss', 'w') as fp:
+        fp.write(str(soup))
+   
         
 def get_rss_imgur(key_words):
     store = file.Storage('token.json')
@@ -374,14 +436,18 @@ def get_rss_imgur(key_words):
     file_metadata = {'name': 'rss_by_keywords_imgur.rss'}
     media = MediaFileUpload('rss_by_keywords_imgur.rss', mimetype='text/plain',resumable=True)
     fili = service.files().create(body=file_metadata, media_body=media, fields='id').execute() 
-    with open('rss_by_keywords_imgur.rss', 'w') as fp:
-        feed2.write(fp, 'utf-8')
+    o = feed2.writeString('utf-8')
+    soup = BeautifulSoup(o, "xml")
+    soup = soup.prettify()
+    with open('templates/rss_by_keywords_imgur.rss', 'w') as fp:
+        fp.write(str(soup))
+   
         
 @app.route('/')
 def index():
     return render_template(
         'index.html',
-        site_data = [{'site':'imgur'}, {'site':'amazon'}, {'site':'teepublic'}, {'site':'etsy'}, {'site':'9gag'}, {'site':'redbubble'}, {'site':'twitter'}]
+        site_data = [{'site':'imgur'}, {'site':'amazon'}, {'site':'teepublic'}, {'site':'etsy'}, {'site':'9gag'}, {'site':'redbubble'}, {'site':'twitter'}, {'site':'pinterest'}]
     )
 @app.route("/rss" , methods=['GET', 'POST'])
 def test():
@@ -394,46 +460,49 @@ def test():
     key_words = text.split()
     if select == '9gag':
         get_rss_9gag(key_words)
-        feed = feedparser.parse('rss_by_keywords_for_9gag.rss')
-        first_article = feed['entries'][0]
-        return render_template("home3.html", articles=feed['entries'])         
+        rss_xml = render_template('rss_by_keywords_for_9gag.rss')
+        return Response(rss_xml, mimetype='text/xml')         
     elif select == 'redbubble':
         get_rss_redbubble(key_words)
-        feed = feedparser.parse('rss_by_keywords_for_redbubble.rss')
-        first_article = feed['entries'][0]
-        return render_template("home2.html", articles=feed['entries'])
+        rss_xml = render_template('rss_by_keywords_for_redbubble.rss')
+        return Response(rss_xml, mimetype='text/xml')
     elif select == 'etsy':
         get_rss_etsy(key_words)
-        feed = feedparser.parse('rss_by_keywords_etsy.rss')
-        first_article = feed['entries'][0]
-        return render_template("home.html", articles=feed['entries'])
+        rss_xml = render_template('rss_by_keywords_etsy.rss')
+        return Response(rss_xml, mimetype='text/xml')
     elif select == 'teepublic':
         get_rss_teepublic(key_words)
-        feed = feedparser.parse('rss_by_keywords_teepublic.rss')
-        first_article = feed['entries'][0]
-        return render_template("home2.html", articles=feed['entries'])
+        rss_xml = render_template('rss_by_keywords_teepublic.rss')
+        return Response(rss_xml, mimetype='text/xml')
     elif select == 'amazon':
         get_rss_amazon(key_words)
-        feed = feedparser.parse('rss_by_keywords_amazon.rss')
-        first_article = feed['entries'][0]
-        return render_template("home.html", articles=feed['entries'])
+        rss_xml = render_template('rss_by_keywords_amazon.rss')
+        return Response(rss_xml, mimetype='text/xml')
     elif select == 'imgur':
         get_rss_imgur(key_words)
-        feed = feedparser.parse('rss_by_keywords_imgur.rss')
-        first_article = feed['entries'][0]
-        return render_template("home3.html", articles=feed['entries'])
+        rss_xml = render_template('rss_by_keywords_imgur.rss')
+        return Response(rss_xml, mimetype='text/xml')
+
     elif select == 'twitter':
         return render_template("index_twitter.html")
+    
+    elif select == 'pinterest':
+        return render_template("index_for_pinterest.html")
     
 @app.route("/rss/twitter" , methods=['GET', 'POST'])
 def test_twitter(): 
     username = request.form.get('username')
     rss_for_twitter(key_words, username)
-    feed = feedparser.parse('rss_by_keywords_for_twitter.rss')
-    return render_template("home.html", articles=feed['entries'])
-    
+    rss_xml = render_template('rss_by_keywords_for_twitter.rss')
+    return Response(rss_xml, mimetype='text/xml')
+
+@app.route("/rss/pinterest" , methods=['GET', 'POST'])
+def test_pinterest(): 
+    username = request.form.get('username2')
+    rss_for_pinterest(key_words, username)
+    rss_xml = render_template('rss_by_keywords_for_pinterest.rss')
+    return Response(rss_xml, mimetype='text/xml')    
     
 if __name__=='__main__':
     app.run(debug=True)
- 
 

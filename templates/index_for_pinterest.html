@@ -1,0 +1,9 @@
+<!doctype html>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<div class="center-on-page">  
+<h1>Enter pinterest username</h1>
+<form class="form-inline" method="POST" action="{{ url_for('test_pinterest') }}">
+	<input type="text" name="username2" placeholder="Enter username for pinterest (like: janew)">
+    <button type="submit" class="btn">Get rss</button>
+  </div>
+</form>

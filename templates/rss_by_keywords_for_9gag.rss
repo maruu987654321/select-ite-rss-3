@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+ <channel>
+  <title>
+   All Rss
+  </title>
+  <link>
+   https://9gag.com/
+  </link>
+  <description>
+   New in 9gag
+  </description>
+  <language>
+   en
+  </language>
+  <lastBuildDate>
+   Mon, 04 Feb 2019 07:01:12 -0000
+  </lastBuildDate>
+  <item>
+   <title>
+    That&amp;rsquo;s one happy cat!
+   </title>
+   <link>
+    http://9gag.com/gag/a0Q4yRQ
+   </link>
+   <description>
+    https://img-9gag-fun.9cache.com/photo/a0Q4yRQ_460s.jpg
+   </description>
+   <guid isPermaLink="false">
+    idposte
+   </guid>
+  </item>
+ </channel>
+</rss>

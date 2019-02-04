@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+ <channel>
+  <title>
+   Rss for pinterest
+  </title>
+  <link>
+   https://pinterest.com/
+  </link>
+  <description>
+   New in pinteret
+  </description>
+  <language>
+   en
+  </language>
+  <lastBuildDate>
+   Mon, 04 Feb 2019 07:21:31 -0000
+  </lastBuildDate>
+  <item>
+   <title>
+    The Best Vegan Omele
+   </title>
+   <link>
+    https://www.pinterest.com/pin/2814818503866381/
+   </link>
+   <description>
+    &lt;a href="/pin/2814818503866381/"&gt;&lt;img src="https://i.pinimg.com/236x/9b/8a/fe/9b8afe0baadb7e8c55800639a461bf17.jpg"&gt;&lt;/a&gt;The Best Vegan Omelette
+   </description>
+   <guid isPermaLink="false">
+    idposte
+   </guid>
+  </item>
+  <item>
+   <title>
+    crispy rice, crispy
+   </title>
+   <link>
+    https://www.pinterest.com/pin/2814818503850496/
+   </link>
+   <description>
+    &lt;a href="/pin/2814818503850496/"&gt;&lt;img src="https://i.pinimg.com/236x/f7/87/56/f7875636db79589dfdc7d97f46383a03.jpg"&gt;&lt;/a&gt;crispy rice, crispy egg bowl
+   </description>
+   <guid isPermaLink="false">
+    idposte
+   </guid>
+  </item>
+ </channel>
+</rss>
